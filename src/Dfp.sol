@@ -19,6 +19,10 @@ contract DFP is ERC20, Ownable {
         _mint(address(this), _CAP);
     }
 
+    function withdrawTokens(IERC20 token, address to, uint256 amount) external onlyOwner {
+        token.safeTransfer(to, amount);
+    }
+
     function getPaymentToken() external view returns (address) {
         return address(_paymentToken);
     }
