@@ -26,7 +26,10 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     error NotEnoughTokensToSell();
 
     event Sold(
-        address indexed buyer, address indexed recipientWallet, uint256 amount, uint256 price
+        address indexed buyer,
+        address indexed recipientWallet,
+        uint256 amount,
+        uint256 price
     );
 
     constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
@@ -57,6 +60,10 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     }
 
     function buyTokens(uint256 purchaseAmount, address recipientWallet) external {
+        if (recipientWallet == address(0)) {
+            revert ZeroAddress();
+        }
+
         _purchaseTokens(purchaseAmount, recipientWallet);
     }
 
@@ -68,7 +75,7 @@ contract DFP is ERC20, ERC20Permit, Ownable {
             revert NotEnoughTokensToSell();
         }
 
-        uint256 purchasePrice = (purchaseAmount * SALE_RATE) / _MULTIPLIER;
+        uint256 purchasePrice = purchaseAmount * SALE_RATE / _MULTIPLIER;
 
         _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, purchasePrice);
         _transfer(address(this), recipientWallet, purchaseAmount);
