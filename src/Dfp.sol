@@ -7,9 +7,10 @@ import {
 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DFP is ERC20, ERC20Permit, Ownable {
+contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     using SafeERC20 for IERC20;
 
     uint256 private constant _CAP = 100_000_000e18;
@@ -43,8 +44,10 @@ contract DFP is ERC20, ERC20Permit, Ownable {
         _mint(address(this), _CAP);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
-        return interfaceId == type(IERC20Permit).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC20Permit).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     function withdrawTokens(IERC20 token, address to, uint256 amount) external onlyOwner {
