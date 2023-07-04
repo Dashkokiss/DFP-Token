@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.16;
 
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {
+    IERC20Permit, IERC20
+} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+
 import {Test, console} from "forge-std/Test.sol";
+
 import {MockERC20Dec6} from "test/mock/MockERC20Dec6.sol";
 import {DepositMock} from "test/mock/DepositMock.sol";
 import {SigUtils} from "test/utils/SigUtils.sol";
@@ -59,6 +65,30 @@ contract DfpTest is Test {
         assertEq(dfp.decimals(), DECIMALS);
         assertEq(dfp.totalSupply(), CAP);
         assertEq(dfp.owner(), OWNER);
+    }
+
+    // endregion
+
+    // region - constructor
+
+    function test_constructor_revert_ifZeroAddress() public {
+        vm.expectRevert(DFP.ZeroAddress.selector);
+        dfp = new DFP(paymentToken, address(0));
+    }
+
+    // endregion
+
+    // region - Support interfaces
+
+    function test_supportInterface() public {
+        bytes4 interfaceIdPermit = type(IERC20Permit).interfaceId;
+        bytes4 interfaceIdERC165 = type(IERC165).interfaceId;
+        bytes4 incorrectInterface = type(IERC20).interfaceId;
+
+        assertTrue(dfp.supportsInterface(interfaceIdERC165));
+        assertTrue(dfp.supportsInterface(interfaceIdPermit));
+
+        assertFalse(dfp.supportsInterface(incorrectInterface));
     }
 
     // endregion
