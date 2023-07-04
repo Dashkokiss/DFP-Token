@@ -10,7 +10,7 @@ import {DFP} from "src/Dfp.sol";
 contract DfpTest is Test {
     DFP public dfp;
     DepositMock internal deposit;
-    MockERC20Dec6 internal mockErc20dec6;
+    MockERC20Dec6 internal paymentToken;
     SigUtils internal sigUtils;
 
     address internal ALICE = vm.addr(0xA11CE);
@@ -22,9 +22,18 @@ contract DfpTest is Test {
     uint256 internal constant CAP = 100_000_000e18;
     uint256 internal constant VALUE = 1e18;
     uint256 internal constant DECIMALS = 18;
+    uint256 internal constant MIN_PURCHASE_AMOUNT = 1e18;
+    uint256 internal constant SALE_RATE = 0.1e6; // 0.1 USDT
+    uint256 internal constant MULTIPLIER = 1e18;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Sold(
+        address indexed buyer,
+        address indexed recipientWallet,
+        uint256 amount,
+        uint256 price
+    );
 
     // region - Set Up
 
@@ -35,11 +44,11 @@ contract DfpTest is Test {
         vm.label(WALLET, "Wallet");
         vm.label(HACKER, "Hacker");
 
-        mockErc20dec6 = new MockERC20Dec6("Mock Token", "MK");
+        paymentToken = new MockERC20Dec6("Mock Token", "MK");
         deposit = new DepositMock();
 
         vm.prank(OWNER);
-        dfp = new DFP(mockErc20dec6, WALLET);
+        dfp = new DFP(paymentToken, WALLET);
 
         sigUtils = new SigUtils(dfp.DOMAIN_SEPARATOR());
     }
@@ -57,7 +66,137 @@ contract DfpTest is Test {
     // region - getPaymentToken
 
     function test_getPaymentToken() public {
-        assertEq(dfp.getPaymentToken(), address(mockErc20dec6));
+        assertEq(dfp.getPaymentToken(), address(paymentToken));
+    }
+
+    // endregion
+
+    // region - buyTokens (without wallet)
+
+    function test_buyTokens_withoutWallet_revert_ifMinPurchaseIncorrect() public {
+        vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
+
+        dfp.buyTokens(MIN_PURCHASE_AMOUNT - 1);
+    }
+
+    function test_buyTokens_withoutWallet_revert_ifNotEnoughTokensToSell() public {
+        vm.prank(OWNER);
+        dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
+
+        vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
+        dfp.buyTokens(VALUE, ALICE);
+    }
+
+    function test_buyTokens_withoutWallet_emit_Sold() public {
+        uint256 purchasePrice = VALUE * SALE_RATE / MULTIPLIER;
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+
+        vm.expectEmit(true, true, true, true);
+        emit Sold(ALICE, ALICE, VALUE, purchasePrice);
+
+        dfp.buyTokens(VALUE);
+    }
+
+    function test_buyTokens_withoutWallet_success() public {
+        uint256 purchasePrice = CAP * SALE_RATE / MULTIPLIER;
+        assertEq(purchasePrice, 10_000_000e6);
+
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+
+        dfp.buyTokens(CAP);
+
+        assertEq(dfp.balanceOf(ALICE), CAP);
+        assertEq(dfp.balanceOf(address(dfp)), 0);
+        assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
+    }
+
+    function testFuzz_buyTokens_withoutWallet(uint256 purchaseAmount) public {
+        purchaseAmount = bound(purchaseAmount, MIN_PURCHASE_AMOUNT, CAP);
+
+        uint256 purchasePrice = purchaseAmount * SALE_RATE / MULTIPLIER;
+
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+        dfp.buyTokens(purchaseAmount);
+
+        assertEq(dfp.balanceOf(ALICE), purchaseAmount);
+        assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
+    }
+
+    // endregion
+
+    // region - buyTokens (with wallet)
+
+    function test_buyTokens_withWallet_revert_ifMinPurchaseIncorrect() public {
+        vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
+
+        dfp.buyTokens(MIN_PURCHASE_AMOUNT - 1, ALICE);
+    }
+
+    function test_buyTokens_withWallet_revert_ifNotEnoughTokensToSell() public {
+        vm.prank(OWNER);
+        dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
+
+        vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
+        dfp.buyTokens(VALUE);
+    }
+
+    function test_buyTokens_withWallet_revert_ifZeroAddress() public {
+        vm.expectRevert(abi.encodeWithSelector(DFP.ZeroAddress.selector));
+        dfp.buyTokens(VALUE, address(0));
+    }
+
+    function test_buyTokens_withWallet_emit_Sold() public {
+        uint256 purchasePrice = VALUE * SALE_RATE / MULTIPLIER;
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+
+        vm.expectEmit(true, true, true, true);
+        emit Sold(ALICE, BOB, VALUE, purchasePrice);
+
+        dfp.buyTokens(VALUE, BOB);
+    }
+
+    function test_buyTokens_withWallet_success() public {
+        uint256 purchasePrice = CAP * SALE_RATE / MULTIPLIER;
+        assertEq(purchasePrice, 10_000_000e6);
+
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+
+        dfp.buyTokens(CAP, BOB);
+
+        assertEq(dfp.balanceOf(ALICE), 0);
+        assertEq(dfp.balanceOf(BOB), CAP);
+        assertEq(dfp.balanceOf(address(dfp)), 0);
+        assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
+    }
+
+    function testFuzz_buyTokens_withWallet(uint256 purchaseAmount) public {
+        purchaseAmount = bound(purchaseAmount, MIN_PURCHASE_AMOUNT, CAP);
+
+        uint256 purchasePrice = purchaseAmount * SALE_RATE / MULTIPLIER;
+
+        paymentToken.mint(ALICE, purchasePrice);
+
+        vm.startPrank(ALICE);
+        paymentToken.approve(address(dfp), purchasePrice);
+        dfp.buyTokens(purchaseAmount, BOB);
+
+        assertEq(dfp.balanceOf(BOB), purchaseAmount);
+        assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
     }
 
     // endregion
@@ -316,7 +455,7 @@ contract DfpTest is Test {
         dfp.permit(permit.owner, permit.spender, permit.value, permit.deadline, v, r, s);
 
         vm.prank(address(dfp));
-        dfp.transfer(ALICE, 1e18);
+        dfp.transfer(ALICE, VALUE);
 
         vm.prank(BOB);
         dfp.transferFrom(ALICE, BOB, 2e18); // attempt to transfer 2 tokens (owner only owns 1)
