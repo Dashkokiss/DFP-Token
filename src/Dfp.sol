@@ -22,6 +22,7 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     address private immutable _wallet;
 
     error MinPurchase(uint256 minAmount);
+    error NotEnoughTokensToSell();
 
     event Sold(address indexed buyer, uint256 amount, uint256 price);
 
@@ -55,6 +56,9 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     function _purchaseTokens(uint256 purchaseAmount, address wallet) private {
         if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
             revert MinPurchase(MIN_PURCHASE_AMOUNT);
+        }
+        if (balanceOf(address(this)) < purchaseAmount) {
+            revert NotEnoughTokensToSell();
         }
 
         uint256 purchasePrice = (purchaseAmount * SALE_RATE) / _MULTIPLIER;
