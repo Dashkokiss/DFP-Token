@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.18;
+pragma solidity 0.8.16;
 
 import {
     ERC20Permit,
@@ -21,12 +21,19 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     IERC20 private immutable _paymentToken;
     address private immutable _sellerWallet;
 
+    error ZeroAddress();
     error MinPurchase(uint256 minAmount);
     error NotEnoughTokensToSell();
 
-    event Sold(address indexed buyer, uint256 amount, uint256 price);
+    event Sold(
+        address indexed buyer, address indexed recipientWallet, uint256 amount, uint256 price
+    );
 
     constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
+        if (sellerWallet == address(0)) {
+            revert ZeroAddress();
+        }
+
         _paymentToken = paymentToken;
         _sellerWallet = sellerWallet;
 
@@ -66,6 +73,6 @@ contract DFP is ERC20, ERC20Permit, Ownable {
         _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, purchasePrice);
         _transfer(address(this), recipientWallet, purchaseAmount);
 
-        emit Sold(msg.sender, purchaseAmount, purchasePrice);
+        emit Sold(msg.sender, recipientWallet, purchaseAmount, purchasePrice);
     }
 }
