@@ -19,16 +19,16 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     uint256 public constant SALE_RATE = 0.1e6; // 0.1 USDT
 
     IERC20 private immutable _paymentToken;
-    address private immutable _wallet;
+    address private immutable _sellerWallet;
 
     error MinPurchase(uint256 minAmount);
     error NotEnoughTokensToSell();
 
     event Sold(address indexed buyer, uint256 amount, uint256 price);
 
-    constructor(IERC20 paymentToken, address wallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
+    constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
         _paymentToken = paymentToken;
-        _wallet = wallet;
+        _sellerWallet = sellerWallet;
 
         _mint(address(this), _CAP);
     }
@@ -46,14 +46,14 @@ contract DFP is ERC20, ERC20Permit, Ownable {
     }
 
     function buyTokens(uint256 purchaseAmount) external {
-        _purchaseTokens(purchaseAmount, _wallet);
+        _purchaseTokens(purchaseAmount, msg.sender);
     }
 
-    function buyTokens(uint256 purchaseAmount, address wallet) external {
-        _purchaseTokens(purchaseAmount, wallet);
+    function buyTokens(uint256 purchaseAmount, address recipientWallet) external {
+        _purchaseTokens(purchaseAmount, recipientWallet);
     }
 
-    function _purchaseTokens(uint256 purchaseAmount, address wallet) private {
+    function _purchaseTokens(uint256 purchaseAmount, address recipientWallet) private {
         if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
             revert MinPurchase(MIN_PURCHASE_AMOUNT);
         }
@@ -63,8 +63,8 @@ contract DFP is ERC20, ERC20Permit, Ownable {
 
         uint256 purchasePrice = (purchaseAmount * SALE_RATE) / _MULTIPLIER;
 
-        _paymentToken.safeTransferFrom(msg.sender, wallet, purchasePrice);
-        _transfer(address(this), msg.sender, purchaseAmount);
+        _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, purchasePrice);
+        _transfer(address(this), recipientWallet, purchaseAmount);
 
         emit Sold(msg.sender, purchaseAmount, purchasePrice);
     }
