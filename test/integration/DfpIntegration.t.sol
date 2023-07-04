@@ -138,4 +138,41 @@ contract DfpIntegrationTest is Test {
     }
 
     // endregion
+
+    // region - Withdraw USDT
+
+    function test_withdrawTokens_usdt() public {
+        uint256 amount = 1_000e6;
+        vm.startPrank(OWNER);
+        usdt.issue(amount);
+
+        usdt.safeTransfer(address(dfp), amount);
+
+        assertEq(usdt.balanceOf(address(dfp)), amount);
+        assertEq(usdt.balanceOf(ALICE), 0);
+
+        dfp.withdrawTokens(usdt, ALICE, amount);
+
+        assertEq(usdt.balanceOf(address(dfp)), 0);
+        assertEq(usdt.balanceOf(ALICE), amount);
+    }
+
+    // endregion
+
+    // region - Withdraw DFP
+
+    function test_withdrawTokens_dfp() public {
+        uint256 amount = dfp.totalSupply();
+
+        assertEq(dfp.balanceOf(address(dfp)), amount);
+        assertEq(dfp.balanceOf(ALICE), 0);
+
+        vm.prank(OWNER);
+        dfp.withdrawTokens(dfp, ALICE, amount);
+
+        assertEq(dfp.balanceOf(address(dfp)), 0);
+        assertEq(dfp.balanceOf(ALICE), amount);
+    }
+
+    // endregion
 }
