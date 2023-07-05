@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 import {Script} from "forge-std/Script.sol";
 import {console} from "forge-std/console.sol";
 import {HelperConfig} from "script/HelperConfig.s.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import {DFP} from "src/Dfp.sol";
 
@@ -19,7 +20,7 @@ contract DeployDfp is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        (usdt,, wallet) = helperConfig.activeNetworkConfig();
+        (usdt, wallet) = helperConfig.activeNetworkConfig();
 
         dfp = new DFP(IERC20(usdt), wallet);
 

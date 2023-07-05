@@ -27,5 +27,7 @@ contract MockERC20Dec6 is ERC20, IUSDT {
         _mint(msg.sender, amount);
     }
 
+    function owner() external returns (address) {}
+
     function transferOwnership(address newOwner) external {}
 }

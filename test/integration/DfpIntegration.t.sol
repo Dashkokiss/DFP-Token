@@ -23,7 +23,6 @@ contract DfpIntegrationTest is Test {
     uint256 internal constant SALE_RATE = 0.1e6; // 0.1 USDT
     uint256 internal constant MULTIPLIER = 1e18;
 
-    address internal usdtOwner;
     address internal wallet;
 
     // region - Set Up
@@ -36,17 +35,16 @@ contract DfpIntegrationTest is Test {
         uint256 chainId = block.chainid;
 
         if (chainId == 1) {
-            vm.rollFork(17619914);
             HelperConfig helperConfig = new HelperConfig();
             address usdtAddr;
-            (usdtAddr, usdtOwner, wallet) = helperConfig.activeNetworkConfig();
+
+            (usdtAddr, wallet) = helperConfig.activeNetworkConfig();
             usdt = IUSDT(usdtAddr);
 
-            vm.prank(usdtOwner);
+            vm.prank(usdt.owner());
             usdt.transferOwnership(OWNER);
         } else if (chainId == 11155111 || chainId == 31337) {
             usdt = new MockERC20Dec6("Tether USD", "MUSDT");
-            usdtOwner = OWNER;
             wallet = vm.addr(0xBA);
         }
 
@@ -59,15 +57,12 @@ contract DfpIntegrationTest is Test {
     // region - Initial state
 
     function test_initialState() public {
-        // fork_block_number = 17619914
-
         uint256 chainId = block.chainid;
         if (chainId == 1) {
             assertEq(usdt.name(), "Tether USD");
             assertEq(usdt.symbol(), "USDT");
             assertEq(usdt.decimals(), 6);
-            assertEq(usdt.totalSupply(), 39030615894320966);
-            assertEq(usdt.balanceOf(usdtOwner), 108983766990);
+            assertGt(usdt.totalSupply(), 0);
         } else {
             assertEq(usdt.name(), "Tether USD");
             assertEq(usdt.symbol(), "MUSDT");

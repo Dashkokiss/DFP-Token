@@ -12,5 +12,7 @@ interface IUSDT is IERC20 {
 
     function issue(uint256 amount) external;
 
+    function owner() external returns (address);
+
     function transferOwnership(address newOwner) external;
 }
