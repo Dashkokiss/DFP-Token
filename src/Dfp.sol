@@ -13,13 +13,22 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     using SafeERC20 for IERC20;
 
+    /// @notice The minimum amount that can be purchased
     uint256 public constant MIN_PURCHASE_AMOUNT = 1e18;
-    uint256 public constant SALE_RATE = 0.1e6; // 0.1 USDT
 
+    /// @notice The rate at which tokens are sold, set to 0.1 USDT
+    uint256 public constant SALE_RATE = 0.1e6;
+
+    /// @notice The total supply of tokens
     uint256 private constant _TOTAL_SUPPLY = 100_000_000e18;
+
+    /// @notice A multiplier used to calculate the price
     uint256 private constant _MULTIPLIER = 1e18;
 
+    /// @notice The ERC20 token that will be used for payments
     IERC20 private immutable _paymentToken;
+
+    /// @notice The wallet address of the seller
     address private immutable _sellerWallet;
 
     error ZeroAddress();
