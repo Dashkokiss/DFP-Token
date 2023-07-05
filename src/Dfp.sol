@@ -13,11 +13,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     using SafeERC20 for IERC20;
 
-    uint256 private constant _CAP = 100_000_000e18;
-    uint256 private constant _MULTIPLIER = 1e18;
-
     uint256 public constant MIN_PURCHASE_AMOUNT = 1e18;
     uint256 public constant SALE_RATE = 0.1e6; // 0.1 USDT
+
+    uint256 private constant _TOTAL_SUPPLY = 100_000_000e18;
+    uint256 private constant _MULTIPLIER = 1e18;
 
     IERC20 private immutable _paymentToken;
     address private immutable _sellerWallet;
@@ -27,10 +27,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     error NotEnoughTokensToSell();
 
     event Sold(
-        address indexed buyer,
-        address indexed recipientWallet,
-        uint256 amount,
-        uint256 price
+        address indexed buyer, address indexed recipientWallet, uint256 amount, uint256 price
     );
 
     constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
@@ -41,13 +38,11 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
         _paymentToken = paymentToken;
         _sellerWallet = sellerWallet;
 
-        _mint(address(this), _CAP);
+        _mint(address(this), _TOTAL_SUPPLY);
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return
-            interfaceId == type(IERC20Permit).interfaceId ||
-            super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC20Permit).interfaceId || super.supportsInterface(interfaceId);
     }
 
     function withdrawTokens(IERC20 token, address to, uint256 amount) external onlyOwner {
