@@ -31,12 +31,21 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     /// @notice The wallet address of the seller
     address private immutable _sellerWallet;
 
+    /// @notice When an action is attempted involving a zero address
     error ZeroAddress();
+
+    /// @notice When the amount being purchased is below the minimum purchase threshold
     error MinPurchase(uint256 minAmount);
+
+    /// @notice When there are not enough tokens available to fulfill a purchase
     error NotEnoughTokensToSell();
 
+    /// @notice Emitted when tokens are successfully sold
     event Sold(
-        address indexed buyer, address indexed recipientWallet, uint256 amount, uint256 price
+        address indexed buyer,
+        address indexed recipient,
+        uint256 amount,
+        uint256 price
     );
 
     constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
@@ -66,15 +75,15 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
         _purchaseTokens(purchaseAmount, msg.sender);
     }
 
-    function buyTokens(uint256 purchaseAmount, address recipientWallet) external {
-        if (recipientWallet == address(0)) {
+    function buyTokens(uint256 purchaseAmount, address recipient) external {
+        if (recipient == address(0)) {
             revert ZeroAddress();
         }
 
-        _purchaseTokens(purchaseAmount, recipientWallet);
+        _purchaseTokens(purchaseAmount, recipient);
     }
 
-    function _purchaseTokens(uint256 purchaseAmount, address recipientWallet) private {
+    function _purchaseTokens(uint256 purchaseAmount, address recipient) private {
         if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
             revert MinPurchase(MIN_PURCHASE_AMOUNT);
         }
@@ -85,8 +94,8 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
         uint256 purchasePrice = purchaseAmount * SALE_RATE / _MULTIPLIER;
 
         _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, purchasePrice);
-        _transfer(address(this), recipientWallet, purchaseAmount);
+        _transfer(address(this), recipient, purchaseAmount);
 
-        emit Sold(msg.sender, recipientWallet, purchaseAmount, purchasePrice);
+        emit Sold(msg.sender, recipient, purchaseAmount, purchasePrice);
     }
 }
