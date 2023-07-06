@@ -65,7 +65,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     }
 
     /// @dev See {IERC165 - supportsInterface}
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return interfaceId == type(IERC20Permit).interfaceId || super.supportsInterface(interfaceId);
     }
 
