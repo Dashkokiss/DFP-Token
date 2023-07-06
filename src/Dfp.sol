@@ -45,7 +45,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     /// Event
 
     /// @notice Emitted when tokens are successfully sold
-    event Sold(address indexed buyer, address indexed recipient, uint256 amount, uint256 price);
+    event Sold(address indexed buyer, address indexed recipient, uint256 amount);
 
     /**
      * @notice Contract constructor that initializes the token
@@ -133,6 +133,6 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
         // Transfers the purchased tokens from the contract to the recipient address
         _transfer(address(this), recipient, purchaseAmount);
 
-        emit Sold(msg.sender, recipient, purchaseAmount, purchasePrice);
+        emit Sold(msg.sender, recipient, purchaseAmount);
     }
 }

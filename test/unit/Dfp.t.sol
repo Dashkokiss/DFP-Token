@@ -34,12 +34,7 @@ contract DfpTest is Test {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event Sold(
-        address indexed buyer,
-        address indexed recipientWallet,
-        uint256 amount,
-        uint256 price
-    );
+    event Sold(address indexed buyer, address indexed recipientWallet, uint256 amount);
 
     // region - Set Up
 
@@ -125,7 +120,7 @@ contract DfpTest is Test {
         paymentToken.approve(address(dfp), purchasePrice);
 
         vm.expectEmit(true, true, true, true);
-        emit Sold(ALICE, ALICE, VALUE, purchasePrice);
+        emit Sold(ALICE, ALICE, VALUE);
 
         dfp.buyTokens(VALUE);
     }
@@ -192,7 +187,7 @@ contract DfpTest is Test {
         paymentToken.approve(address(dfp), purchasePrice);
 
         vm.expectEmit(true, true, true, true);
-        emit Sold(ALICE, BOB, VALUE, purchasePrice);
+        emit Sold(ALICE, BOB, VALUE);
 
         dfp.buyTokens(VALUE, BOB);
     }
