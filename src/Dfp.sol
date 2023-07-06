@@ -37,7 +37,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     error ZeroAddress();
 
     /// @notice When the amount being purchased is below the minimum purchase threshold
-    error MinPurchase(uint256 minAmount);
+    error LessThanMinPurchase();
 
     /// @notice When there are not enough tokens available to fulfill a purchase
     error NotEnoughTokensToSell();
@@ -117,7 +117,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     function _buy(uint256 purchaseAmount, address recipient) private {
         // Checks if the purchase amount is greater than the minimum purchase amount
         if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
-            revert MinPurchase(MIN_PURCHASE_AMOUNT);
+            revert LessThanMinPurchase();
         }
 
         // Checks if the contract has enough tokens to sell

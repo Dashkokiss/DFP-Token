@@ -98,8 +98,8 @@ contract DfpTest is Test {
 
     // region - buy (without wallet)
 
-    function test_buy_withoutWallet_revert_ifMinPurchaseIncorrect() public {
-        vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
+    function test_buy_withoutWallet_revert_ifLessThanMinPurchase() public {
+        vm.expectRevert(DFP.LessThanMinPurchase.selector);
 
         dfp.buy(MIN_PURCHASE_AMOUNT - 1);
     }
@@ -160,8 +160,8 @@ contract DfpTest is Test {
 
     // region - buy (with wallet)
 
-    function test_buy_withWallet_revert_ifMinPurchaseIncorrect() public {
-        vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
+    function test_buy_withWallet_revert_ifLessThanMinPurchase() public {
+        vm.expectRevert(DFP.LessThanMinPurchase.selector);
 
         dfp.buy(MIN_PURCHASE_AMOUNT - 1, ALICE);
     }
