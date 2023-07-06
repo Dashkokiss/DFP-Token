@@ -2,15 +2,16 @@
 pragma solidity 0.8.16;
 
 import {
+    ERC20,
+    IERC20,
     ERC20Permit,
     IERC20Permit
 } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import {IERC20, ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
+contract DFP is ERC20Permit, ERC165, Ownable {
     using SafeERC20 for IERC20;
 
     /// @notice The minimum amount that can be purchased is set at 1 DFP
