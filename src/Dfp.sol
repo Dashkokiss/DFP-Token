@@ -50,7 +50,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     /**
      * @notice Contract constructor that initializes the token
      * @param paymentToken The address of the ERC20 token that will be used for payments
-     * @param sellerWallet The wallet address where payments will be sent to
+     * @param sellerWallet The wallet address to which payment is accepted
      * @dev Mints the total supply of DFP tokens to the contract's address
      */
     constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP") {
