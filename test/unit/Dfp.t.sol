@@ -96,23 +96,23 @@ contract DfpTest is Test {
 
     // endregion
 
-    // region - buyTokens (without wallet)
+    // region - buy (without wallet)
 
-    function test_buyTokens_withoutWallet_revert_ifMinPurchaseIncorrect() public {
+    function test_buy_withoutWallet_revert_ifMinPurchaseIncorrect() public {
         vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
 
-        dfp.buyTokens(MIN_PURCHASE_AMOUNT - 1);
+        dfp.buy(MIN_PURCHASE_AMOUNT - 1);
     }
 
-    function test_buyTokens_withoutWallet_revert_ifNotEnoughTokensToSell() public {
+    function test_buy_withoutWallet_revert_ifNotEnoughTokensToSell() public {
         vm.prank(OWNER);
         dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
 
         vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
-        dfp.buyTokens(VALUE, ALICE);
+        dfp.buy(VALUE, ALICE);
     }
 
-    function test_buyTokens_withoutWallet_emit_Sold() public {
+    function test_buy_withoutWallet_emit_Sold() public {
         uint256 purchasePrice = VALUE * SALE_RATE / MULTIPLIER;
         paymentToken.mint(ALICE, purchasePrice);
 
@@ -122,10 +122,10 @@ contract DfpTest is Test {
         vm.expectEmit(true, true, true, true);
         emit Sold(ALICE, ALICE, VALUE);
 
-        dfp.buyTokens(VALUE);
+        dfp.buy(VALUE);
     }
 
-    function test_buyTokens_withoutWallet_success() public {
+    function test_buy_withoutWallet_success() public {
         uint256 purchasePrice = CAP * SALE_RATE / MULTIPLIER;
         assertEq(purchasePrice, 10_000_000e6);
 
@@ -134,14 +134,14 @@ contract DfpTest is Test {
         vm.startPrank(ALICE);
         paymentToken.approve(address(dfp), purchasePrice);
 
-        dfp.buyTokens(CAP);
+        dfp.buy(CAP);
 
         assertEq(dfp.balanceOf(ALICE), CAP);
         assertEq(dfp.balanceOf(address(dfp)), 0);
         assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
     }
 
-    function testFuzz_buyTokens_withoutWallet(uint256 purchaseAmount) public {
+    function testFuzz_buy_withoutWallet(uint256 purchaseAmount) public {
         purchaseAmount = bound(purchaseAmount, MIN_PURCHASE_AMOUNT, CAP);
 
         uint256 purchasePrice = purchaseAmount * SALE_RATE / MULTIPLIER;
@@ -150,7 +150,7 @@ contract DfpTest is Test {
 
         vm.startPrank(ALICE);
         paymentToken.approve(address(dfp), purchasePrice);
-        dfp.buyTokens(purchaseAmount);
+        dfp.buy(purchaseAmount);
 
         assertEq(dfp.balanceOf(ALICE), purchaseAmount);
         assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
@@ -158,28 +158,28 @@ contract DfpTest is Test {
 
     // endregion
 
-    // region - buyTokens (with wallet)
+    // region - buy (with wallet)
 
-    function test_buyTokens_withWallet_revert_ifMinPurchaseIncorrect() public {
+    function test_buy_withWallet_revert_ifMinPurchaseIncorrect() public {
         vm.expectRevert(abi.encodeWithSelector(DFP.MinPurchase.selector, MIN_PURCHASE_AMOUNT));
 
-        dfp.buyTokens(MIN_PURCHASE_AMOUNT - 1, ALICE);
+        dfp.buy(MIN_PURCHASE_AMOUNT - 1, ALICE);
     }
 
-    function test_buyTokens_withWallet_revert_ifNotEnoughTokensToSell() public {
+    function test_buy_withWallet_revert_ifNotEnoughTokensToSell() public {
         vm.prank(OWNER);
         dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
 
         vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
-        dfp.buyTokens(VALUE);
+        dfp.buy(VALUE);
     }
 
-    function test_buyTokens_withWallet_revert_ifZeroAddress() public {
+    function test_buy_withWallet_revert_ifZeroAddress() public {
         vm.expectRevert(abi.encodeWithSelector(DFP.ZeroAddress.selector));
-        dfp.buyTokens(VALUE, address(0));
+        dfp.buy(VALUE, address(0));
     }
 
-    function test_buyTokens_withWallet_emit_Sold() public {
+    function test_buy_withWallet_emit_Sold() public {
         uint256 purchasePrice = VALUE * SALE_RATE / MULTIPLIER;
         paymentToken.mint(ALICE, purchasePrice);
 
@@ -189,10 +189,10 @@ contract DfpTest is Test {
         vm.expectEmit(true, true, true, true);
         emit Sold(ALICE, BOB, VALUE);
 
-        dfp.buyTokens(VALUE, BOB);
+        dfp.buy(VALUE, BOB);
     }
 
-    function test_buyTokens_withWallet_success() public {
+    function test_buy_withWallet_success() public {
         uint256 purchasePrice = CAP * SALE_RATE / MULTIPLIER;
         assertEq(purchasePrice, 10_000_000e6);
 
@@ -201,7 +201,7 @@ contract DfpTest is Test {
         vm.startPrank(ALICE);
         paymentToken.approve(address(dfp), purchasePrice);
 
-        dfp.buyTokens(CAP, BOB);
+        dfp.buy(CAP, BOB);
 
         assertEq(dfp.balanceOf(ALICE), 0);
         assertEq(dfp.balanceOf(BOB), CAP);
@@ -209,7 +209,7 @@ contract DfpTest is Test {
         assertEq(paymentToken.balanceOf(WALLET), purchasePrice);
     }
 
-    function testFuzz_buyTokens_withWallet(uint256 purchaseAmount) public {
+    function testFuzz_buy_withWallet(uint256 purchaseAmount) public {
         purchaseAmount = bound(purchaseAmount, MIN_PURCHASE_AMOUNT, CAP);
 
         uint256 purchasePrice = purchaseAmount * SALE_RATE / MULTIPLIER;
@@ -218,7 +218,7 @@ contract DfpTest is Test {
 
         vm.startPrank(ALICE);
         paymentToken.approve(address(dfp), purchasePrice);
-        dfp.buyTokens(purchaseAmount, BOB);
+        dfp.buy(purchaseAmount, BOB);
 
         assertEq(dfp.balanceOf(BOB), purchaseAmount);
         assertEq(paymentToken.balanceOf(WALLET), purchasePrice);

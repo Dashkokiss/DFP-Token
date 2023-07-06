@@ -88,24 +88,24 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
     /**
      * @notice Allows a user to buy tokens by specifying the purchase amount
      * @param purchaseAmount The amount of tokens to be purchased
-     * @dev Calls the internal function _buyTokens to handle the token purchase
+     * @dev Calls the internal function _buy to handle the token purchase
      */
-    function buyTokens(uint256 purchaseAmount) external {
-        _buyTokens(purchaseAmount, msg.sender);
+    function buy(uint256 purchaseAmount) external {
+        _buy(purchaseAmount, msg.sender);
     }
 
     /**
      * @notice Allows a user to buy tokens by specifying the purchase amount and the recipient address
      * @param purchaseAmount The amount of tokens to be purchased
      * @param recipient The address where the purchased tokens will be transferred
-     * @dev Calls the internal function _buyTokens to handle the token purchase
+     * @dev Calls the internal function _buy to handle the token purchase
      */
-    function buyTokens(uint256 purchaseAmount, address recipient) external {
+    function buy(uint256 purchaseAmount, address recipient) external {
         if (recipient == address(0)) {
             revert ZeroAddress();
         }
 
-        _buyTokens(purchaseAmount, recipient);
+        _buy(purchaseAmount, recipient);
     }
 
     /**
@@ -114,7 +114,7 @@ contract DFP is ERC20, ERC165, ERC20Permit, Ownable {
      * @param recipient The address where the purchased tokens will be transferred
      * @dev Emits a Sold event to indicate the successful token purchase
      */
-    function _buyTokens(uint256 purchaseAmount, address recipient) private {
+    function _buy(uint256 purchaseAmount, address recipient) private {
         // Checks if the purchase amount is greater than the minimum purchase amount
         if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
             revert MinPurchase(MIN_PURCHASE_AMOUNT);

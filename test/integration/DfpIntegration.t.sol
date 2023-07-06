@@ -75,7 +75,7 @@ contract DfpIntegrationTest is Test {
 
     // region - Buy tokens withoutWallet
 
-    function test_buyTokens_withoutWallet() public {
+    function test_buy_withoutWallet() public {
         uint256 totalUsdt = 10_000_000e6;
         uint256 purchaseAmount = 10_000_000e18;
 
@@ -92,7 +92,7 @@ contract DfpIntegrationTest is Test {
             vm.startPrank(user);
             usdt.safeApprove(address(dfp), purchasePrice);
 
-            dfp.buyTokens(purchaseAmount);
+            dfp.buy(purchaseAmount);
 
             assertEq(dfp.balanceOf(user), purchaseAmount);
         }
@@ -105,7 +105,7 @@ contract DfpIntegrationTest is Test {
 
     // region - Buy tokens withWallet
 
-    function test_buyTokens_withWallet() public {
+    function test_buy_withWallet() public {
         uint256 totalUsdt = 10_000_000e6;
         uint256 purchaseAmount = 10_000_000e18;
 
@@ -122,7 +122,7 @@ contract DfpIntegrationTest is Test {
             vm.startPrank(user);
             usdt.safeApprove(address(dfp), purchasePrice);
 
-            dfp.buyTokens(purchaseAmount, BOB);
+            dfp.buy(purchaseAmount, BOB);
 
             assertEq(dfp.balanceOf(user), 0);
         }
