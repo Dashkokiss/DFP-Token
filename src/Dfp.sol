@@ -82,7 +82,7 @@ contract DFP is ERC20Permit, ERC165, Ownable {
      * @param amount The amount of tokens to be withdrawn
      * @dev Only the owner of the contract can call this function
      */
-    function withdrawTokens(IERC20 token, address to, uint256 amount) external onlyOwner {
+    function withdraw(IERC20 token, address to, uint256 amount) external onlyOwner {
         token.safeTransfer(to, amount);
     }
 

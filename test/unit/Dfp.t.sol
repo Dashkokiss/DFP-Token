@@ -106,7 +106,7 @@ contract DfpTest is Test {
 
     function test_buy_withoutWallet_revert_ifNotEnoughTokensToSell() public {
         vm.prank(OWNER);
-        dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
+        dfp.withdraw(dfp, OWNER, 100_000_000e18);
 
         vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
         dfp.buy(VALUE, ALICE);
@@ -168,7 +168,7 @@ contract DfpTest is Test {
 
     function test_buy_withWallet_revert_ifNotEnoughTokensToSell() public {
         vm.prank(OWNER);
-        dfp.withdrawTokens(dfp, OWNER, 100_000_000e18);
+        dfp.withdraw(dfp, OWNER, 100_000_000e18);
 
         vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
         dfp.buy(VALUE);
@@ -226,42 +226,42 @@ contract DfpTest is Test {
 
     // endregion
 
-    // region - withdrawTokens
+    // region - withdraw
 
-    function test_withdrawTokens_success() public {
+    function test_withdraw_success() public {
         MockERC20Dec6 mockErc20 = new MockERC20Dec6("Mock Token", "MK");
         mockErc20.mint(address(dfp), VALUE);
 
         assertEq(mockErc20.balanceOf(address(dfp)), VALUE);
 
         vm.prank(OWNER);
-        dfp.withdrawTokens(mockErc20, ALICE, VALUE);
+        dfp.withdraw(mockErc20, ALICE, VALUE);
 
         assertEq(mockErc20.balanceOf(address(dfp)), 0);
         assertEq(mockErc20.balanceOf(ALICE), VALUE);
     }
 
-    function test_withdrawTokens_dfp_success() public {
+    function test_withdraw_dfp_success() public {
         vm.prank(OWNER);
-        dfp.withdrawTokens(dfp, ALICE, VALUE);
+        dfp.withdraw(dfp, ALICE, VALUE);
 
         assertEq(dfp.balanceOf(ALICE), VALUE);
         assertEq(dfp.balanceOf(address(dfp)), dfp.totalSupply() - VALUE);
     }
 
-    function test_withdrawTokens_emit_Transfer() public {
+    function test_withdraw_emit_Transfer() public {
         vm.expectEmit(true, true, true, true);
         emit Transfer(address(dfp), ALICE, VALUE);
 
         vm.prank(OWNER);
-        dfp.withdrawTokens(dfp, ALICE, VALUE);
+        dfp.withdraw(dfp, ALICE, VALUE);
     }
 
-    function test_withdrawTokens_revert_ifNotOwner() public {
+    function test_withdraw_revert_ifNotOwner() public {
         vm.expectRevert("Ownable: caller is not the owner");
 
         vm.prank(HACKER);
-        dfp.withdrawTokens(dfp, HACKER, VALUE);
+        dfp.withdraw(dfp, HACKER, VALUE);
     }
 
     // endregion
