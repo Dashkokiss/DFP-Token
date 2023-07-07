@@ -88,52 +88,52 @@ contract DFP is ERC20Permit, ERC165, Ownable {
 
     /**
      * @notice Allows a user to buy tokens by specifying the purchase amount
-     * @param purchaseAmount The amount of tokens to be purchased
+     * @param amount The amount of tokens to be purchased
      * @dev Calls the internal function _buy to handle the token purchase
      */
-    function buy(uint256 purchaseAmount) external {
-        _buy(purchaseAmount, msg.sender);
+    function buy(uint256 amount) external {
+        _buy(amount, msg.sender);
     }
 
     /**
      * @notice Allows a user to buy tokens by specifying the purchase amount and the recipient address
-     * @param purchaseAmount The amount of tokens to be purchased
+     * @param amount The amount of tokens to be purchased
      * @param recipient The address where the purchased tokens will be transferred
      * @dev Calls the internal function _buy to handle the token purchase
      */
-    function buy(uint256 purchaseAmount, address recipient) external {
+    function buy(uint256 amount, address recipient) external {
         if (recipient == address(0)) {
             revert ZeroAddress();
         }
 
-        _buy(purchaseAmount, recipient);
+        _buy(amount, recipient);
     }
 
     /**
      * @notice Internal function to handle the purchase of tokens
-     * @param purchaseAmount The amount of tokens to be purchased
+     * @param amount The amount of tokens to be purchased
      * @param recipient The address where the purchased tokens will be transferred
      * @dev Emits a Sold event to indicate the successful token purchase
      */
-    function _buy(uint256 purchaseAmount, address recipient) private {
+    function _buy(uint256 amount, address recipient) private {
         // Checks if the purchase amount is greater than the minimum purchase amount
-        if (purchaseAmount < MIN_PURCHASE_AMOUNT) {
+        if (amount < MIN_PURCHASE_AMOUNT) {
             revert LessThanMinPurchase();
         }
 
         // Checks if the contract has enough tokens to sell
-        if (balanceOf(address(this)) < purchaseAmount) {
+        if (balanceOf(address(this)) < amount) {
             revert NotEnoughTokensToSell();
         }
 
         // Calculates the purchase price based on the purchase amount and sale rate
-        uint256 purchasePrice = purchaseAmount * SALE_RATE / _MULTIPLIER;
+        uint256 price = amount * SALE_RATE / _MULTIPLIER;
 
         // Transfers the payment from the buyer to the seller's wallet
-        _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, purchasePrice);
+        _paymentToken.safeTransferFrom(msg.sender, _sellerWallet, price);
         // Transfers the purchased tokens from the contract to the recipient address
-        _transfer(address(this), recipient, purchaseAmount);
+        _transfer(address(this), recipient, amount);
 
-        emit Sold(msg.sender, recipient, purchaseAmount);
+        emit Sold(msg.sender, recipient, amount);
     }
 }
