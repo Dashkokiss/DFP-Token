@@ -104,11 +104,11 @@ contract DfpTest is Test {
         dfp.buy(MIN_PURCHASE_AMOUNT - 1);
     }
 
-    function test_buy_withoutWallet_revert_ifNotEnoughTokensToSell() public {
+    function test_buy_withoutWallet_revert_ifInsufficientTokenToSell() public {
         vm.prank(OWNER);
         dfp.withdraw(dfp, OWNER, 100_000_000e18);
 
-        vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
+        vm.expectRevert(abi.encodeWithSelector(DFP.InsufficientTokenToSell.selector));
         dfp.buy(VALUE, ALICE);
     }
 
@@ -166,11 +166,11 @@ contract DfpTest is Test {
         dfp.buy(MIN_PURCHASE_AMOUNT - 1, ALICE);
     }
 
-    function test_buy_withWallet_revert_ifNotEnoughTokensToSell() public {
+    function test_buy_withWallet_revert_ifInsufficientTokenToSell() public {
         vm.prank(OWNER);
         dfp.withdraw(dfp, OWNER, 100_000_000e18);
 
-        vm.expectRevert(abi.encodeWithSelector(DFP.NotEnoughTokensToSell.selector));
+        vm.expectRevert(abi.encodeWithSelector(DFP.InsufficientTokenToSell.selector));
         dfp.buy(VALUE);
     }
 

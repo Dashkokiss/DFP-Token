@@ -41,7 +41,7 @@ contract DFP is ERC20Permit, ERC165, Ownable {
     error LessThanMinPurchase();
 
     /// @notice When there are not enough tokens available to fulfill a purchase
-    error NotEnoughTokensToSell();
+    error InsufficientTokenToSell();
 
     /// Event
 
@@ -123,7 +123,7 @@ contract DFP is ERC20Permit, ERC165, Ownable {
 
         // Checks if the contract has enough tokens to sell
         if (balanceOf(address(this)) < amount) {
-            revert NotEnoughTokensToSell();
+            revert InsufficientTokenToSell();
         }
 
         // Calculates the purchase price based on the purchase amount and sale rate
