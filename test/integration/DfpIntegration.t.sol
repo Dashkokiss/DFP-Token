@@ -95,7 +95,7 @@ contract DfpIntegrationTest is Test {
             dfp.buy(purchaseAmount);
 
             assertEq(dfp.balanceOf(user), purchaseAmount);
-            // TODO stopPrank
+            vm.stopPrank();
         }
 
         assertEq(usdt.balanceOf(wallet), totalUsdt);
@@ -126,7 +126,7 @@ contract DfpIntegrationTest is Test {
             dfp.buy(purchaseAmount, BOB);
 
             assertEq(dfp.balanceOf(user), 0);
-            // TODO stopPrank
+            vm.stopPrank();
         }
 
         assertEq(usdt.balanceOf(wallet), totalUsdt);
@@ -149,6 +149,7 @@ contract DfpIntegrationTest is Test {
         assertEq(usdt.balanceOf(ALICE), 0);
 
         dfp.withdraw(usdt, ALICE, amount);
+        vm.stopPrank();
 
         assertEq(usdt.balanceOf(address(dfp)), 0);
         assertEq(usdt.balanceOf(ALICE), amount);
