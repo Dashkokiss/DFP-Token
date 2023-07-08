@@ -3,6 +3,7 @@
 ## Summary
 
 - [Smart-contract](#smart-contract)
+  - [State Variables](#state-variables)
   - [Functions](#functions)
   - [Errors](#errors)
   - [Events](#events)
@@ -19,6 +20,86 @@
 
 The DFP token is an [ERC20](https://eips.ethereum.org/EIPS/eip-20) compliant token with integrated [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612) (Permit) functionality. It is capped at a maximum supply of 100,000,000 DFP tokens. The contract uses the Ownable module to control access based on the owner address.
 The token contract contains a selling functionality. The price of 0.1 USDT per 1 DFP is set.
+
+## State Variables
+
+### MIN_PURCHASE_AMOUNT
+
+```solidity
+uint256 public constant MIN_PURCHASE_AMOUNT = 1e18;
+```
+
+The `MIN_PURCHASE_AMOUNT` is a public constant state variable that specifies the minimum amount of tokens a buyer must purchase in a single transaction. Its value is set at 1 DFP.
+
+| Name                 | Type     | Description                                      |
+| -------------------- | -------- | ------------------------------------------------ |
+| `MIN_PURCHASE_AMOUNT`| `uint256`| The minimum amount of tokens a buyer can purchase in a single transaction.|
+
+
+### SALE_RATE
+
+```solidity
+uint256 public constant SALE_RATE = 0.1e6;
+```
+
+The `SALE_RATE` is a public constant state variable that specifies the rate at which tokens are sold, set to 0.1 USDT per token.
+
+| Name         | Type     | Description                                      |
+| ------------ | -------- | ------------------------------------------------ |
+| `SALE_RATE`  | `uint256`| The rate at which tokens are sold (0.1 USDT per token).|
+
+
+### _TOTAL_SUPPLY
+
+```solidity
+uint256 private constant _TOTAL_SUPPLY = 100_000_000e18;
+```
+
+`_TOTAL_SUPPLY` is a private constant state variable that specifies the total supply of DFP tokens. Its value is set at 100 million DFP tokens.
+
+| Name           | Type     | Description                                      |
+| -------------- | -------- | ------------------------------------------------ |
+| `_TOTAL_SUPPLY`| `uint256`| The total supply of DFP tokens.|
+
+
+### _MULTIPLIER
+
+```solidity
+uint256 private constant _MULTIPLIER = 1e18;
+```
+
+`_MULTIPLIER` is a private constant state variable that is used to calculate the price of tokens in smaller units. Its value is set at 1e18.
+
+| Name          | Type     | Description                                      |
+| ------------- | -------- | ------------------------------------------------ |
+| `_MULTIPLIER` | `uint256`| The multiplier used to calculate the price of tokens in smaller units.|
+
+
+### _paymentToken
+
+```solidity
+IERC20 private immutable _paymentToken;
+```
+
+`_paymentToken` is an immutable state variable of type IERC20 that holds the reference to the ERC20 token contract that will be used for payments.
+
+| Name           | Type    | Description                                      |
+| -------------- | ------- | ------------------------------------------------ |
+| `_paymentToken`| `IERC20`| The ERC20 token that will be used for payments.|
+
+
+### _sellerWallet
+
+```solidity
+address private immutable _sellerWallet;
+```
+
+`_sellerWallet` is a private immutable state variable of type address that holds the wallet address of the seller.
+
+| Name           | Type     | Description                                      |
+| -------------- | -------- | ------------------------------------------------ |
+| `_sellerWallet`| `address`| The wallet address of the seller.|
+
 
 ## Functions
 
