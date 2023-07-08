@@ -5,6 +5,7 @@
   - [Functions](#functions)
   - [Errors](#errors)
   - [Events](#events)
+  - [Standard ERC20 functionality](#standard-erc20-functionality)
   - [Extensions](#extensions)
     - [Ownable](#ownable)
     - [ERC-165](#erc-165)
@@ -237,6 +238,198 @@ The `Sold` event is emitted whenever a successful token purchase transaction occ
 | `amount`    | `uint256` | No      | The amount of tokens that were purchased in the transaction.                                          |
 
 The `indexed` keyword in an event indicates that the value can be used to filter events when listening to them. It's possible to filter `Sold` events for specific buyers or recipients, or even both, due to the `indexed` keyword.
+
+---
+
+## Standard ERC20 functionality
+
+**Inherits:**
+Context, IERC20, IERC20Metadata
+
+The ERC20 contract is a standard interface for tokens on the Ethereum blockchain. It includes functionalities for transferring tokens, inquiring the balance of accounts, and authorizing other accounts to spend tokens on behalf of the owner. In addition, it includes metadata attributes such as the token's name, symbol, and decimal representation.
+
+## Functions
+
+The ERC20 contract includes a variety of functions for interacting with the token. These functions allow for the transfer of tokens, querying of balances, and approval of spending allowances.
+
+### name
+
+```solidity
+function name() public view virtual override returns (string memory);
+```
+
+The `name` function returns the name of the token.
+
+### symbol
+
+```solidity
+function symbol() public view virtual override returns (string memory);
+```
+
+The `symbol` function returns the symbol of the token.
+
+### decimals
+
+```solidity
+function decimals() public view virtual override returns (uint8);
+```
+
+The `decimals` function returns the number of decimal places the token uses for display purposes. This does not affect the actual underlying value of the tokens.
+
+### totalSupply
+
+```solidity
+function totalSupply() public view virtual override returns (uint256);
+```
+
+The `totalSupply` function returns the total supply of tokens.
+
+### balanceOf
+
+```solidity
+function balanceOf(address account) public view virtual override returns (uint256);
+```
+
+The `balanceOf` function returns the number of tokens held by a given address.
+
+**Parameters**
+
+| Name      | Type      | Description                         |
+| --------- | --------- | ----------------------------------- |
+| `account` | `address` | The address to query the balance of |
+
+### transfer
+
+```solidity
+function transfer(address to, uint256 amount) public virtual override returns (bool);
+```
+
+The `transfer` function moves a specific number of tokens from the sender's account to another account.
+
+**Parameters**
+
+| Name     | Type      | Description                                   |
+| -------- | --------- | --------------------------------------------- |
+| `to`     | `address` | The recipient address                         |
+| `amount` | `uint256` | The number of tokens to transfer              |
+
+### allowance
+
+```solidity
+function allowance(address owner, address spender) public view virtual override returns (uint256);
+```
+
+The `allowance` function returns the current number of tokens the `spender` is allowed to spend on behalf of the `owner`.
+
+**Parameters**
+
+| Name      | Type      | Description                              |
+| --------- | --------- | ---------------------------------------- |
+| `owner`   | `address` | The address of the token owner           |
+| `spender` | `address` | The address authorized to spend tokens   |
+
+### approve
+
+```solidity
+function approve(address spender, uint256 amount) public virtual override returns (bool);
+```
+
+The `approve` function is used to allow an address to spend a specific number of tokens on behalf of the sender.
+
+**Parameters**
+
+| Name      | Type      | Description                                      |
+| --------- | --------- | ------------------------------------------------ |
+| `spender` | `address` | The address authorized to spend the tokens       |
+| `amount`  | `uint256` | The number of tokens they can spend              |
+
+### transferFrom
+
+```solidity
+function transferFrom(address from, address to, uint256 amount)
+    public
+    virtual
+    override
+    returns (bool);
+```
+
+The `transferFrom` function is used to move tokens from one account to another, given that the sender has been approved to spend those tokens.
+
+**Parameters**
+
+| Name     | Type      | Description                                    |
+| -------- | --------- | ---------------------------------------------- |
+| `from`   | `address` | The sender address                             |
+| `to`     | `address` | The recipient address                          |
+| `amount` | `uint256` | The number of tokens to be transferred         |
+
+### increaseAllowance
+
+```solidity
+function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool);
+```
+
+The `increaseAllowance` function is used to increase the allowance that an address has been granted.
+
+**Parameters**
+
+| Name         | Type      | Description                                                |
+| ------------ | --------- | ---------------------------------------------------------- |
+| `spender`    | `address` | The address authorized to spend the tokens                 |
+| `addedValue` | `uint256` | The number of tokens to add to the spender's allowance     |
+
+### decreaseAllowance
+
+```solidity
+function decreaseAllowance(address spender, uint256 subtractedValue)
+    public
+    virtual
+    returns (bool);
+```
+
+The `decreaseAllowance` function is used to decrease the allowance that an address has been granted.
+
+**Parameters**
+
+| Name             | Type      | Description                                                      |
+| ---------------- | --------- | ---------------------------------------------------------------- |
+| `spender`        | `address` | The address authorized to spend the tokens                       |
+| `subtractedValue`| `uint256` | The number of tokens to subtract from the spender's allowance   |
+
+### Events
+
+### Transfer
+
+```solidity
+event Transfer(address indexed from, address indexed to, uint256 value);
+```
+
+The `Transfer` event is emitted when value tokens are moved from one address to another.
+
+**Parameters**
+
+| Name   | Type                | Description |
+| ------ | ------------------- | ----------- |
+| `from` | `address indexed`   | The address from which the tokens are transferred. |
+| `to`   | `address indexed`   | The address to which the tokens are transferred. |
+| `value`| `uint256`           | The number of tokens being transferred. |
+
+### Approval
+
+```solidity
+event Approval(address indexed owner, address indexed spender, uint256 value);
+```
+
+The `Approval` event is emitted when the `allowance` of a `spender` for an `owner` is set by a call to {approve}. `value` is the new allowance.
+
+**Parameters**
+
+| Name     | Type                | Description |
+| -------- | ------------------- | ----------- |
+| `owner`  | `address indexed`   | The address of the tokens owner. |
+| `spender`| `address indexed`   | The address which will spend the tokens. |
+| `value`  | `uint256`           | The number of tokens the spender is allowed to spend. |
+
 
 ---
 
