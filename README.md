@@ -1,13 +1,14 @@
 # DFP
 
-## Summary
-
 - [Smart-contract](#smart-contract)
   - [State Variables](#state-variables)
   - [Functions](#functions)
   - [Errors](#errors)
   - [Events](#events)
-  - [ERC-2612 Permit](#erc-2612-permit)
+  - [Extensions](#extensions)
+    - [Ownable](#ownable)
+    - [ERC-165](#erc-165)
+    - [ERC-2612 Permit](#erc-2612-permit)
 - [Getting started for foundry](#getting-started-for-foundry)
   - [Requirements](#requirements)
   - [Quickstart](#quickstart)
@@ -17,6 +18,8 @@
   - [Deploying to mainnet](#deploying-to-mainnet)
 - [Security](#security)
 - [Resources](#resources)
+
+## Smart contract
 
 The DFP token is an [ERC20](https://eips.ethereum.org/EIPS/eip-20) compliant token with integrated [ERC-2612](https://eips.ethereum.org/EIPS/eip-2612) (Permit) functionality. It is capped at a maximum supply of 100,000,000 DFP tokens. The contract uses the Ownable module to control access based on the owner address.
 The token contract contains a selling functionality. The price of 0.1 USDT per 1 DFP is set.
@@ -227,19 +230,166 @@ event Sold(address indexed buyer, address indexed recipient, uint256 amount);
 
 The `Sold` event is emitted whenever a successful token purchase transaction occurs. It includes information about the buyer, the recipient of the tokens, and the amount of tokens purchased.
 
-| Name  | Type     | Indexed | Description                                                                                       |
-| ---------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
-| `buyer`    | `address`| Yes     | The Ethereum address of the buyer. This is the address that initiated the token purchase transaction. |
-| `recipient`| `address`| Yes     | The Ethereum address to which the purchased tokens were transferred.                                 |
-| `amount`   | `uint256`| No      | The amount of tokens that were purchased in the transaction.                                          |
+| Name        | Type      | Indexed | Description                                                                                           |
+| ----------- | --------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `buyer`     | `address` | Yes     | The Ethereum address of the buyer. This is the address that initiated the token purchase transaction. |
+| `recipient` | `address` | Yes     | The Ethereum address to which the purchased tokens were transferred.                                  |
+| `amount`    | `uint256` | No      | The amount of tokens that were purchased in the transaction.                                          |
 
 The `indexed` keyword in an event indicates that the value can be used to filter events when listening to them. It's possible to filter `Sold` events for specific buyers or recipients, or even both, due to the `indexed` keyword.
+
+---
+
+## Extensions
+
+### Ownable
+
+The Ownable contract is a contract module which provides a basic access control mechanism. It designates an account (an owner) that can be granted exclusive access to specific functions. By default, the owner account will be the one that deploys the contract, but this can be changed later using the `transferOwnership` function. The Ownable contract uses the `onlyOwner` modifier to restrict the use of certain functions to the owner.
+
+## State Variables
+
+### \_owner
+
+```solidity
+address private _owner;
+```
+
+The `_owner` private state variable stores the Ethereum address of the current owner of the contract.
+
+**Parameters**
+
+| Name     | Type      | Description                                |
+| -------- | --------- | ------------------------------------------ |
+| `_owner` | `address` | The Ethereum address of the current owner. |
+
+## Functions
+
+### constructor
+
+```solidity
+constructor();
+```
+
+The `constructor` function initializes the contract by setting the deployer as the initial owner.
+
+### onlyOwner
+
+```solidity
+modifier onlyOwner();
+```
+
+The `onlyOwner` function is a modifier that throws an error if the function it is attached to is called by any account other than the owner.
+
+### owner
+
+```solidity
+function owner() public view virtual returns (address);
+```
+
+The `owner` function returns the address of the current owner of the contract.
+
+### \_checkOwner
+
+```solidity
+function _checkOwner() internal view virtual;
+```
+
+The `_checkOwner` function throws an error if the caller of the function is not the owner.
+
+### renounceOwnership
+
+```solidity
+function renounceOwnership() public virtual onlyOwner;
+```
+
+The `renounceOwnership` function allows the current owner to renounce ownership of the contract. This leaves the contract without an owner and disables any functionality that is only available to the owner.
+
+### transferOwnership
+
+```solidity
+function transferOwnership(address newOwner) public virtual onlyOwner;
+```
+
+The `transferOwnership` function allows the current owner to transfer ownership of the contract to a new account. This function can only be called by the current owner.
+
+**Parameters**
+
+| Name       | Type      | Description                            |
+| ---------- | --------- | -------------------------------------- |
+| `newOwner` | `address` | The Ethereum address of the new owner. |
+
+## Events
+
+### OwnershipTransferred
+
+```solidity
+event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+```
+
+The `OwnershipTransferred` event is emitted when ownership of the contract has been transferred from one account to another. It includes information about the previous owner and the new owner.
+
+| Parameter       | Type      | Indexed | Description                                 |
+| --------------- | --------- | ------- | ------------------------------------------- |
+| `previousOwner` | `address` | Yes     | The Ethereum address of the previous owner. |
+| `newOwner`      | `address` | Yes     | The Ethereum address of the new owner.      |
+
+---
+
+### ERC-165
+
+ERC165 is an Ethereum standard used for discovering and identifying interfaces that a smart contract complies with. The ERC165 contract is an implementation of the {IERC165} interface.
+
+## Functions
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool);
+```
+
+The `supportsInterface` function takes an interface ID as input and returns a boolean indicating whether the contract implements that interface. This function is a requirement for any contract that implements ERC165.
+
+The function is designed to be overridden by the contract that inherits from it, allowing the contract to specify which interfaces it supports.
+
+**Parameters**
+
+| Name          | Type     | Description                                                       |
+| ------------- | -------- | ----------------------------------------------------------------- |
+| `interfaceId` | `bytes4` | The 4-byte ID of the interface that is being checked for support. |
+
+**Returns**
+
+`bool`: Returns `true` if the contract implements `interfaceId` and `false` otherwise.
+
+---
 
 ### ERC-2612 Permit
 
 The DFP token contract integrates the ERC-2612 Permit standard, which allows token holders to provide approvals for token transfers using off-chain signed messages. This feature simplifies the process of granting permissions for token transfers, reduces gas costs, and enhances user experience by eliminating the need for on-chain transactions.
 
-### `permit`
+**Inherits:**
+
+- ERC20
+- IERC20Permit
+- EIP712
+
+## Functions
+
+### constructor
+
+```solidity
+constructor(string memory name) EIP712(name, "1");
+```
+
+The constructor initializes the {EIP712} domain separator using the `name` parameter and sets `version` to `"1"`.
+
+**Parameters**
+
+| Name   | Type            | Description                                       |
+| ------ | --------------- | ------------------------------------------------- |
+| `name` | `string memory` | The name that is defined as the ERC20 token name. |
+
+### permit
 
 ```js
 function permit(
@@ -254,6 +404,48 @@ function permit(
 ```
 
 The `permit` function allows token holders to generate permit messages, sign them with their private keys, and share the permit signatures with recipients to authorize token transfers. This function enhances efficiency, reduces gas costs, and provides flexibility for seamless token transfer approvals in various decentralized applications and platforms.
+
+**Parameters**
+
+| Name       | Type      | Description                               |
+| ---------- | --------- | ----------------------------------------- |
+| `owner`    | `address` | The account that owns the tokens.         |
+| `spender`  | `address` | The account that will spend the tokens.   |
+| `value`    | `uint256` | The number of tokens to be spent.         |
+| `deadline` | `uint256` | The time until which the permit is valid. |
+| `v`        | `uint8`   | The recovery byte of the signature.       |
+| `r`        | `bytes32` | The first 32 bytes of the signature.      |
+| `s`        | `bytes32` | The second 32 bytes of the signature.     |
+
+### nonces
+
+```solidity
+function nonces(address owner) public view virtual override returns (uint256);
+```
+
+Returns the current nonce for a given owner address. This nonce is used to prevent replay attacks.
+
+**Parameters**
+
+| Name    | Type      | Description                             |
+| ------- | --------- | --------------------------------------- |
+| `owner` | `address` | The address for which to get the nonce. |
+
+**Returns**
+
+`uint256`: The current nonce for the given owner address.
+
+### DOMAIN_SEPARATOR
+
+```solidity
+function DOMAIN_SEPARATOR() external view override returns (bytes32);
+```
+
+Returns the EIP712 domain separator of the contract.
+
+**Returns**
+
+`bytes32`: The EIP712 domain separator of the contract.
 
 ---
 
