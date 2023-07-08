@@ -11,6 +11,9 @@
   - [Requirements](#requirements)
   - [Quickstart](#quickstart)
   - [Testing](#testing)
+- [Deploying to a network](#deploying-to-a-network)
+  - [Deploying to testnet](#deploying-to-testnet)
+  - [Deploying to mainnet](#deploying-to-mainnet)
 - [Security](#security)
 - [Resources](#resources)
 
@@ -55,9 +58,8 @@ Please install the following:
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
   - You'll know you've done it right if you can run `git --version`
 - [Foundry / Foundryup](https://github.com/gakonst/foundry)
-  - This will install `forge`, `cast`, and `anvil`
+  - This will install `forge`, `cast`, and `anvil`. [Installation Instructions](https://book.getfoundry.sh/getting-started/installation)
   - You can test you've installed them right by running `forge --version` and get an output like: `forge 0.2.0 (f016135 2022-07-04T00:15:02.930499Z)`
-  - To get the latest of each, just run `foundryup`
 
 ### Quickstart
 
@@ -71,6 +73,53 @@ forge build
 
 ```
 forge test
+```
+
+---
+
+## Deploying to a network
+
+Deploying to a network uses the [foundry scripting system](https://book.getfoundry.sh/tutorials/solidity-scripting.html).
+
+### Setup
+
+You need to create a file `.env` in the project and add the following variables to it:
+
+- `SEPOLIA_RPC_URL`: A URL to connect to the Ethereum testnet. You can get one for free from [Alchemy](https://www.alchemy.com/).
+- `MAINNET_RPC_URL`: A URL to connect to the Ethereum mainnet.
+- `PRIVATE_KEY`: A private key from your wallet. You can get a private key from a new [Metamask](https://metamask.io/) account
+- `ETHERSCAN_API_KEY`: To verify a contract on etherscan.
+
+In the file `HelperConfig.s.sol`, which is located in the folder `script/` you must change the wallet address for the test network sepolia and for the ethereum mainnet.
+
+```js
+sepoliaNetworkConfig = NetworkConfig({
+  usdt: 0x7169d38820dfd117c3fa1f22a697dba58d90ba06,
+  wallet: 0x32bb35fc246cb3979c4df996f18366c6c753c29c,
+});
+
+mainnetNetworkConfig = NetworkConfig({
+  usdt: 0xdac17f958d2ee523a2206206994597c13d831ec7,
+  wallet: 0x32bb35fc246cb3979c4df996f18366c6c753c29c,
+});
+```
+
+This is the address to which payments in USDT token will be received.
+
+**IMPORTANT**: before deploating to the mainnet, perform all actions in the testnet and make sure everything works as expected.
+
+### Deploying to testnet
+
+This will run the forge script, the script it's running is:
+
+```bash
+forge script script/Dfp.s.sol:DeployDfp --rpc-url sepolia --broadcast --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+```
+
+### Deploying to mainnet
+
+```bash
+forge script script/Dfp.s.sol:DeployDfp --rpc-url mainnet --broadcast --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
 ```
 
 ---
