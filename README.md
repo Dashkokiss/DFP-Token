@@ -31,10 +31,9 @@ uint256 public constant MIN_PURCHASE_AMOUNT = 1e18;
 
 The `MIN_PURCHASE_AMOUNT` is a public constant state variable that specifies the minimum amount of tokens a buyer must purchase in a single transaction. Its value is set at 1 DFP.
 
-| Name                 | Type     | Description                                      |
-| -------------------- | -------- | ------------------------------------------------ |
-| `MIN_PURCHASE_AMOUNT`| `uint256`| The minimum amount of tokens a buyer can purchase in a single transaction.|
-
+| Name                  | Type      | Description                                                                |
+| --------------------- | --------- | -------------------------------------------------------------------------- |
+| `MIN_PURCHASE_AMOUNT` | `uint256` | The minimum amount of tokens a buyer can purchase in a single transaction. |
 
 ### SALE_RATE
 
@@ -44,12 +43,11 @@ uint256 public constant SALE_RATE = 0.1e6;
 
 The `SALE_RATE` is a public constant state variable that specifies the rate at which tokens are sold, set to 0.1 USDT per token.
 
-| Name         | Type     | Description                                      |
-| ------------ | -------- | ------------------------------------------------ |
-| `SALE_RATE`  | `uint256`| The rate at which tokens are sold (0.1 USDT per token).|
+| Name        | Type      | Description                                             |
+| ----------- | --------- | ------------------------------------------------------- |
+| `SALE_RATE` | `uint256` | The rate at which tokens are sold (0.1 USDT per token). |
 
-
-### _TOTAL_SUPPLY
+### \_TOTAL_SUPPLY
 
 ```solidity
 uint256 private constant _TOTAL_SUPPLY = 100_000_000e18;
@@ -57,12 +55,11 @@ uint256 private constant _TOTAL_SUPPLY = 100_000_000e18;
 
 `_TOTAL_SUPPLY` is a private constant state variable that specifies the total supply of DFP tokens. Its value is set at 100 million DFP tokens.
 
-| Name           | Type     | Description                                      |
-| -------------- | -------- | ------------------------------------------------ |
-| `_TOTAL_SUPPLY`| `uint256`| The total supply of DFP tokens.|
+| Name            | Type      | Description                     |
+| --------------- | --------- | ------------------------------- |
+| `_TOTAL_SUPPLY` | `uint256` | The total supply of DFP tokens. |
 
-
-### _MULTIPLIER
+### \_MULTIPLIER
 
 ```solidity
 uint256 private constant _MULTIPLIER = 1e18;
@@ -70,12 +67,11 @@ uint256 private constant _MULTIPLIER = 1e18;
 
 `_MULTIPLIER` is a private constant state variable that is used to calculate the price of tokens in smaller units. Its value is set at 1e18.
 
-| Name          | Type     | Description                                      |
-| ------------- | -------- | ------------------------------------------------ |
-| `_MULTIPLIER` | `uint256`| The multiplier used to calculate the price of tokens in smaller units.|
+| Name          | Type      | Description                                                            |
+| ------------- | --------- | ---------------------------------------------------------------------- |
+| `_MULTIPLIER` | `uint256` | The multiplier used to calculate the price of tokens in smaller units. |
 
-
-### _paymentToken
+### \_paymentToken
 
 ```solidity
 IERC20 private immutable _paymentToken;
@@ -83,12 +79,11 @@ IERC20 private immutable _paymentToken;
 
 `_paymentToken` is an immutable state variable of type IERC20 that holds the reference to the ERC20 token contract that will be used for payments.
 
-| Name           | Type    | Description                                      |
-| -------------- | ------- | ------------------------------------------------ |
-| `_paymentToken`| `IERC20`| The ERC20 token that will be used for payments.|
+| Name            | Type     | Description                                     |
+| --------------- | -------- | ----------------------------------------------- |
+| `_paymentToken` | `IERC20` | The ERC20 token that will be used for payments. |
 
-
-### _sellerWallet
+### \_sellerWallet
 
 ```solidity
 address private immutable _sellerWallet;
@@ -96,19 +91,149 @@ address private immutable _sellerWallet;
 
 `_sellerWallet` is a private immutable state variable of type address that holds the wallet address of the seller.
 
-| Name           | Type     | Description                                      |
-| -------------- | -------- | ------------------------------------------------ |
-| `_sellerWallet`| `address`| The wallet address of the seller.|
-
+| Name            | Type      | Description                       |
+| --------------- | --------- | --------------------------------- |
+| `_sellerWallet` | `address` | The wallet address of the seller. |
 
 ## Functions
 
 **Inherits:**
 ERC20, ERC165, ERC20Permit, Ownable
 
+### constructor
+
+```solidity
+constructor(IERC20 paymentToken, address sellerWallet) ERC20("DFP", "DFP") ERC20Permit("DFP");
+```
+
+The constructor function is called once when the contract is first deployed. It takes as parameters an ERC20 token to be used as the payment token and a seller's wallet address. It also inherits the `ERC20` and `ERC20Permit` constructors, setting the token's name and symbol to "DFP". The constructor mints the 100_000_000e18 of DFP tokens to the contract's address.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `paymentToken` | `IERC20` | The address of the ERC20 token that will be used for payments. |
+| `sellerWallet` | `address` | The wallet address to which payments are accepted. |
+
+### supportsInterface
+
+```solidity
+function supportsInterface(bytes4 interfaceId) public view override returns (bool);
+```
+
+The `supportsInterface` function is an overriding function that checks if the contract implements an interface identified by the `interfaceId`. This method is used to support Interface Identification as per the EIP-165 standard.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `interfaceId` | `bytes4` | The identifier of the interface to query for. |
+
+### getPaymentToken
+
+```solidity
+function getPaymentToken() external view returns (address);
+```
+
+The `getPaymentToken` function is a public view function that returns the address of the ERC20 token used for payments in the sale.
+
+### withdraw
+
+```solidity
+function withdraw(IERC20 token, address to, uint256 amount) external onlyOwner;
+```
+
+The `withdraw` function allows the contract owner to withdraw a specified amount of tokens from the contract. The tokens are transferred to the specified address. This function can only be called by the owner of the contract.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `token` | `IERC20` | The address of the ERC20 token contract to withdraw from. |
+| `to` | `address` | The address where the tokens will be transferred to. |
+| `amount` | `uint256` | The amount of tokens to be withdrawn. |
+
+### buy
+
+```solidity
+function buy(uint256 amount) external;
+```
+
+The `buy` function allows a user to purchase a specified amount of tokens. The function internally calls the `_buy` function to handle the token purchase.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `amount` | `uint256` | The amount of tokens to be purchased. |
+
+### buy
+
+```solidity
+function buy(uint256 amount, address recipient) external;
+```
+
+The `buy` function allows a user to purchase a specified amount of tokens and send them to a specified recipient address. The function internally calls the `_buy` function to handle the token purchase.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `amount` | `uint256` | The amount of tokens to be purchased. |
+| `recipient` | `address` | The address where the purchased tokens will be transferred. |
+
+### \_buy
+
+```solidity
+function _buy(uint256 amount, address recipient) private;
+```
+
+The `_buy` function is a private function that is called by the `buy` functions to handle the token purchase. It checks the purchase amount against the minimum purchase amount, checks the contract's token balance, calculates the purchase price, transfers the payment from the buyer to the seller's wallet, and transfers the purchased tokens from the contract to the recipient address. It then emits a `Sold` event.
+
+**Parameters**
+| Name | Type | Description |
+| --------- | ---- | ----------- |
+| `amount` | `uint256` | The amount of tokens to be purchased. |
+| `recipient` | `address` | The address where the purchased tokens will be transferred. |
+
 ## Errors
 
+### ZeroAddress
+
+```solidity
+error ZeroAddress();
+```
+
+The `ZeroAddress` error is thrown when an operation is attempted involving an Ethereum address that is set to zero.
+
+### LessThanMinPurchase
+
+```solidity
+error LessThanMinPurchase();
+```
+
+The `LessThanMinPurchase` error is triggered when the amount of tokens a user is trying to purchase is less than the minimum allowed purchase amount.
+
+### InsufficientTokenToSell
+
+```solidity
+error InsufficientTokenToSell();
+```
+
+The `InsufficientTokenToSell` error is thrown when a token purchase transaction cannot be completed because there are not enough tokens available in the contract to fulfill the purchase. This could occur when the contract's supply of tokens has been exhausted, or when the amount requested in a purchase exceeds the current balance of tokens in the contract.
+
 ## Events
+
+### Sold
+
+```solidity
+event Sold(address indexed buyer, address indexed recipient, uint256 amount);
+```
+
+The `Sold` event is emitted whenever a successful token purchase transaction occurs. It includes information about the buyer, the recipient of the tokens, and the amount of tokens purchased.
+
+| Name  | Type     | Indexed | Description                                                                                       |
+| ---------- | -------- | ------- | ------------------------------------------------------------------------------------------------- |
+| `buyer`    | `address`| Yes     | The Ethereum address of the buyer. This is the address that initiated the token purchase transaction. |
+| `recipient`| `address`| Yes     | The Ethereum address to which the purchased tokens were transferred.                                 |
+| `amount`   | `uint256`| No      | The amount of tokens that were purchased in the transaction.                                          |
+
+The `indexed` keyword in an event indicates that the value can be used to filter events when listening to them. It's possible to filter `Sold` events for specific buyers or recipients, or even both, due to the `indexed` keyword.
 
 ### ERC-2612 Permit
 
@@ -129,6 +254,8 @@ function permit(
 ```
 
 The `permit` function allows token holders to generate permit messages, sign them with their private keys, and share the permit signatures with recipients to authorize token transfers. This function enhances efficiency, reduces gas costs, and provides flexibility for seamless token transfer approvals in various decentralized applications and platforms.
+
+---
 
 ## Getting Started for foundry
 
